@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crypto-alerts-v1';
+const CACHE_NAME = 'crypto-alerts-v2';
 const urlsToCache = [
   './',
   './index.html',
