@@ -419,9 +419,34 @@
 
     /* Responsive */
     @media (max-width: 900px) {
+      .container {
+        padding: 10px;
+      }
+
+      header {
+        padding: 20px 10px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+      }
+
+      .settings-panel {
+        padding: 15px;
+      }
+
       .settings-row {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
+      }
+
+      .setting-group {
+        width: 100%;
       }
 
       .setting-group input, .setting-group select {
@@ -429,23 +454,191 @@
       }
 
       .stats-bar {
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
       }
 
       .stat-card {
         min-width: auto;
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 1.4rem;
+      }
+
+      .table-container {
+        overflow-x: auto;
       }
 
       table {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        min-width: 600px;
       }
 
       th, td {
-        padding: 12px 10px;
+        padding: 10px 8px;
+        white-space: nowrap;
       }
 
       .symbol-icon {
         display: none;
+      }
+
+      .action-btn, .save-alert-btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+      }
+
+      /* Bot section mobile */
+      .bot-section {
+        margin-top: 20px;
+      }
+
+      .bot-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+      }
+
+      .bot-title {
+        font-size: 1rem;
+      }
+
+      .bot-tabs {
+        flex-direction: column;
+      }
+
+      .bot-tab {
+        padding: 12px 15px;
+        font-size: 0.85rem;
+      }
+
+      .bot-content {
+        padding: 15px;
+      }
+
+      .saved-alert-card {
+        padding: 15px;
+      }
+
+      .saved-alert-header {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .saved-alert-symbol {
+        font-size: 1.1rem;
+        flex-wrap: wrap;
+      }
+
+      .saved-alert-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .saved-stat-value {
+        font-size: 0.95rem;
+      }
+
+      .bot-analysis {
+        padding: 15px;
+      }
+
+      .indicator-tags {
+        gap: 5px;
+      }
+
+      .indicator-tag {
+        padding: 4px 8px;
+        font-size: 0.65rem;
+      }
+
+      /* Manual entry mobile */
+      .manual-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .consult-input-row {
+        flex-direction: column;
+      }
+
+      .consult-btn {
+        width: 100%;
+      }
+
+      /* Database mobile */
+      .db-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .db-stat {
+        padding: 12px;
+      }
+
+      .db-stat-value {
+        font-size: 1.2rem;
+      }
+
+      .success-db-item {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .success-db-stats {
+        font-size: 0.75rem;
+      }
+
+      /* Consult result mobile */
+      .consult-verdict {
+        font-size: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .pattern-match-item {
+        flex-direction: column;
+        gap: 5px;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stat-card {
+        padding: 12px;
+      }
+
+      .stat-label {
+        font-size: 0.65rem;
+      }
+
+      .stat-value {
+        font-size: 1.2rem;
+      }
+
+      .saved-alert-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .score-badge {
+        width: 35px;
+        height: 35px;
+        font-size: 0.85rem;
+      }
+
+      .new-badge {
+        padding: 3px 6px;
+        font-size: 0.6rem;
       }
     }
 
