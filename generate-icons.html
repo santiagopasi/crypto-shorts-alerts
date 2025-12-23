@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generar Iconos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 40px;
+      text-align: center;
+    }
+    canvas {
+      border: 2px solid #333;
+      margin: 20px;
+    }
+    button {
+      background: #ff4757;
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover {
+      background: #ff6b81;
+    }
+    h1 { color: #ff4757; }
+    p { color: #888; margin-bottom: 30px; }
+  </style>
+</head>
+<body>
+  <h1>Generador de Iconos</h1>
+  <p>Haz clic en los botones para descargar los iconos necesarios para la PWA</p>
+
+  <div>
+    <canvas id="icon192" width="192" height="192"></canvas>
+    <canvas id="icon512" width="512" height="512"></canvas>
+  </div>
+
+  <div>
+    <button onclick="download('icon192', 'icon-192.png')">Descargar 192x192</button>
+    <button onclick="download('icon512', 'icon-512.png')">Descargar 512x512</button>
+  </div>
+
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#ff4757');
+      gradient.addColorStop(1, '#c0392b');
+      ctx.fillStyle = gradient;
+
+      // Rounded rectangle background
+      const radius = size * 0.2;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Draw down arrow (short symbol)
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = size * 0.08;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const centerX = size / 2;
+      const centerY = size / 2;
+      const arrowSize = size * 0.25;
+
+      // Arrow down
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY - arrowSize);
+      ctx.lineTo(centerX, centerY + arrowSize);
+      ctx.stroke();
+
+      // Arrow head
+      ctx.beginPath();
+      ctx.moveTo(centerX - arrowSize * 0.7, centerY + arrowSize * 0.3);
+      ctx.lineTo(centerX, centerY + arrowSize);
+      ctx.lineTo(centerX + arrowSize * 0.7, centerY + arrowSize * 0.3);
+      ctx.stroke();
+
+      // Dollar sign
+      ctx.font = `bold ${size * 0.2}px Arial`;
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.fillText('$', centerX, centerY - arrowSize * 0.5);
+    }
+
+    function download(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Draw icons on load
+    drawIcon('icon192', 192);
+    drawIcon('icon512', 512);
+  </script>
+</body>
+</html>
