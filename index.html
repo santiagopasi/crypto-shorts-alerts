@@ -2072,6 +2072,25 @@
           <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">
             Esta es tu base de datos de shorts exitosos. El bot aprende de estos patrones para evaluar nuevas alertas.
           </p>
+
+          <!-- Export/Import buttons -->
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="flex: 1; min-width: 200px;">
+              <p style="color: #888; font-size: 0.8rem; margin-bottom: 8px;">📤 Transferir a otro dispositivo:</p>
+              <button class="consult-btn" onclick="exportDatabase()" style="width: 100%; background: rgba(46, 213, 115, 0.2); color: #2ed573;">
+                📥 Exportar Base de Datos
+              </button>
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+              <p style="color: #888; font-size: 0.8rem; margin-bottom: 8px;">📲 Importar desde archivo:</p>
+              <label class="consult-btn" style="width: 100%; display: block; text-align: center; cursor: pointer; background: rgba(108, 92, 231, 0.2); color: #a29bfe;">
+                📤 Importar Base de Datos
+                <input type="file" id="importDbFile" accept=".json" onchange="importDatabase(event)" style="display: none;">
+              </label>
+            </div>
+          </div>
+          <div id="importExportStatus" style="display: none; padding: 10px; border-radius: 8px; margin-bottom: 15px;"></div>
+
           <div id="successDbList" class="success-db-list">
             <div class="empty-bot">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -4723,6 +4742,166 @@
         btn.textContent = '📥 Importar Shorts Exitosos';
         setTimeout(() => { progressDiv.style.display = 'none'; }, 3000);
       }
+    }
+
+    // Export database to JSON file
+    function exportDatabase() {
+      const statusDiv = document.getElementById('importExportStatus');
+
+      try {
+        const data = localStorage.getItem('successShortDatabase') || '[]';
+        const database = JSON.parse(data);
+
+        if (database.length === 0) {
+          statusDiv.style.display = 'block';
+          statusDiv.style.background = 'rgba(255, 71, 87, 0.1)';
+          statusDiv.style.border = '1px solid #ff4757';
+          statusDiv.innerHTML = '<p style="color: #ff4757; margin: 0;">❌ No hay datos para exportar</p>';
+          setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+          return;
+        }
+
+        const exportData = {
+          version: '2.0',
+          exportedAt: new Date().toISOString(),
+          count: database.length,
+          data: database
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pasi-alerts-db-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(46, 213, 115, 0.1)';
+        statusDiv.style.border = '1px solid #2ed573';
+        statusDiv.innerHTML = `
+          <p style="color: #2ed573; margin: 0 0 8px 0;">✅ Base de datos exportada (${database.length} registros)</p>
+          <p style="color: #888; margin: 0; font-size: 0.85rem;">
+            📱 Para transferir al celular: Envía el archivo por <strong>Bluetooth</strong>, WhatsApp, Email o Drive
+          </p>
+        `;
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 8000);
+
+      } catch (error) {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(255, 71, 87, 0.1)';
+        statusDiv.style.border = '1px solid #ff4757';
+        statusDiv.innerHTML = `<p style="color: #ff4757; margin: 0;">❌ Error al exportar: ${error.message}</p>`;
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+      }
+    }
+
+    // Import database from JSON file
+    function importDatabase(event) {
+      const statusDiv = document.getElementById('importExportStatus');
+      const file = event.target.files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const content = JSON.parse(e.target.result);
+
+          // Validate format
+          let dataToImport = [];
+          if (content.data && Array.isArray(content.data)) {
+            // New format with metadata
+            dataToImport = content.data;
+          } else if (Array.isArray(content)) {
+            // Old format (direct array)
+            dataToImport = content;
+          } else {
+            throw new Error('Formato de archivo no válido');
+          }
+
+          if (dataToImport.length === 0) {
+            throw new Error('El archivo no contiene datos');
+          }
+
+          // Ask user how to handle existing data
+          const existingData = JSON.parse(localStorage.getItem('successShortDatabase') || '[]');
+
+          if (existingData.length > 0) {
+            const action = confirm(
+              `Ya tienes ${existingData.length} registros.\n\n` +
+              `¿Quieres COMBINAR los datos? (${existingData.length} existentes + ${dataToImport.length} nuevos)\n\n` +
+              `OK = Combinar\nCancelar = Reemplazar todo`
+            );
+
+            if (action) {
+              // Merge: add new entries that don't exist
+              const existingSymbols = new Set(existingData.map(e => e.symbol + '_' + e.savedAt));
+              const newEntries = dataToImport.filter(e => !existingSymbols.has(e.symbol + '_' + e.savedAt));
+              dataToImport = [...existingData, ...newEntries];
+
+              statusDiv.innerHTML = `
+                <p style="color: #2ed573; margin: 0 0 8px 0;">✅ Datos combinados correctamente</p>
+                <p style="color: #888; margin: 0; font-size: 0.85rem;">
+                  ${existingData.length} existentes + ${newEntries.length} nuevos = ${dataToImport.length} total
+                </p>
+              `;
+            } else {
+              statusDiv.innerHTML = `
+                <p style="color: #2ed573; margin: 0 0 8px 0;">✅ Base de datos reemplazada</p>
+                <p style="color: #888; margin: 0; font-size: 0.85rem;">
+                  ${dataToImport.length} registros importados
+                </p>
+              `;
+            }
+          } else {
+            statusDiv.innerHTML = `
+              <p style="color: #2ed573; margin: 0 0 8px 0;">✅ Base de datos importada</p>
+              <p style="color: #888; margin: 0; font-size: 0.85rem;">
+                ${dataToImport.length} registros cargados
+              </p>
+            `;
+          }
+
+          // Save to localStorage
+          localStorage.setItem('successShortDatabase', JSON.stringify(dataToImport));
+
+          // Update global variable
+          successDatabase = dataToImport;
+
+          // Refresh UI
+          renderSuccessDatabase();
+          updateDbStats();
+
+          statusDiv.style.display = 'block';
+          statusDiv.style.background = 'rgba(46, 213, 115, 0.1)';
+          statusDiv.style.border = '1px solid #2ed573';
+          setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+
+        } catch (error) {
+          statusDiv.style.display = 'block';
+          statusDiv.style.background = 'rgba(255, 71, 87, 0.1)';
+          statusDiv.style.border = '1px solid #ff4757';
+          statusDiv.innerHTML = `<p style="color: #ff4757; margin: 0;">❌ Error al importar: ${error.message}</p>`;
+          setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+        }
+      };
+
+      reader.onerror = function() {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(255, 71, 87, 0.1)';
+        statusDiv.style.border = '1px solid #ff4757';
+        statusDiv.innerHTML = '<p style="color: #ff4757; margin: 0;">❌ Error al leer el archivo</p>';
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+      };
+
+      reader.readAsText(file);
+
+      // Reset file input
+      event.target.value = '';
     }
 
     // Update database stats
