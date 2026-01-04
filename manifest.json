@@ -1,7 +1,7 @@
 {
-  "name": "Crypto Short Alerts",
-  "short_name": "ShortAlerts",
-  "description": "Alertas para shortear criptomonedas en futuros",
+  "name": "Pasi Alerts",
+  "short_name": "PasiAlerts",
+  "description": "Alertas SHORT y LONG para futuros de criptomonedas",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a12",
